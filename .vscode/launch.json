@@ -10,7 +10,13 @@
             "name": "Debug",
             "program": "${workspaceFolder}/build/bin/intrinsic_calib",
             "args": [
-                "-i ../data/images/ -p img --camera-model mei",
+                "-i",
+                "../data/images/",
+                "-p",
+                "img",
+                "--camera-model",
+                "mei",
+                "-v",
             ],
             "cwd": "${workspaceFolder}/build"
         }
