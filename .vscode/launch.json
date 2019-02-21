@@ -7,8 +7,27 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug",
+            "name": "IntrinsicCalib Debug",
             "program": "${workspaceFolder}/build/bin/intrinsic_calib",
+            "args": [
+                "-i",
+                "../data/images/",
+                "-p",
+                "img",
+                "--camera-model",
+                "mei",
+                "--camera-name",
+                "cam0",
+                "-v",
+            ],
+            "cwd": "${workspaceFolder}/build"
+        },
+
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "ExtrinsicCalib Debug",
+            "program": "${workspaceFolder}/build/bin/extrinsic_calib",
             "args": [
                 "-i",
                 "../data/images/",
