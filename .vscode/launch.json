@@ -19,7 +19,7 @@
                 "--camera-name",
                 "cam0",
                 "-v",
-                "--view-results",
+                //"--view-results",
             ],
             "cwd": "${workspaceFolder}/build"
         },

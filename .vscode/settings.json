@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.ipuv": "asm",
+        "*.ipus": "asm",
+        "deque": "cpp",
+        "vector": "cpp"
+    }
+}

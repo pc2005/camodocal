@@ -60,6 +60,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    // Initialze corresponding camera model
     camodocal::Camera::ModelType modelType;
     if (boost::iequals(cameraModel, "kannala-brandt"))
     {
@@ -151,6 +152,7 @@ int main(int argc, char** argv)
     camodocal::CameraCalibration calibration(modelType, cameraName, frameSize, boardSize, squareSize);
     calibration.setVerbose(verbose);
 
+    // detect chessboard corners
     std::vector<bool> chessboardFound(imageFilenames.size(), false);
     for (size_t i = 0; i < imageFilenames.size(); ++i)
     {
@@ -195,6 +197,7 @@ int main(int argc, char** argv)
 
     double startTime = camodocal::timeInSeconds();
 
+    // actual calibration process
     calibration.calibrate();
     calibration.writeParams(cameraName + "_camera_calib.yaml");
     calibration.writeChessboardData(cameraName + "_chessboard_data.dat");
