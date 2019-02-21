@@ -4,9 +4,23 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "echo",
+            "label": "intrinsic_calib build",
             "type": "shell",
-            "command": "echo Hello"
+            "command": "cd build && make -j7 intrinsic_calib",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+
+        {
+            "label": "extrinsic_calib build",
+            "type": "shell",
+            "command": "cd build && make -j7 extrinsic_calib",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
