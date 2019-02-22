@@ -20,8 +20,9 @@
 #include <opencv2/core/cuda.hpp>
 #else // HAVE_OPENCV3
 #include <opencv2/gpu/gpu.hpp>
-namespace cv {
-  namespace cuda = gpu;
+namespace cv
+{
+namespace cuda = gpu;
 }
 #endif // HAVE_OPENCV3
 #endif // HAVE_CUDA
@@ -29,12 +30,11 @@ namespace cv {
 #include "camodocal/calib/CamRigOdoCalibration.h"
 #include "camodocal/camera_models/CameraFactory.h"
 
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     using namespace camodocal;
     namespace fs = ::boost::filesystem;
-    
+
     //Eigen::initParallel();
 
     std::string calibDir;
@@ -55,24 +55,7 @@ main(int argc, char** argv)
 
     //================= Handling Program options ==================
     boost::program_options::options_description desc("Allowed options");
-    desc.add_options()
-        ("help", "produce help message")
-        ("calib,c", boost::program_options::value<std::string>(&calibDir)->default_value("calib"), "Directory containing camera calibration files.")
-        ("estimate,e", boost::program_options::value<std::string>(&odoEstimateFile), "File containing estimate for the extrinsic calibration.")
-        ("camera-count", boost::program_options::value<int>(&cameraCount)->default_value(1), "Number of cameras in rig.")
-        ("f", boost::program_options::value<float>(&focal)->default_value(300.0f), "Nominal focal length.")
-        ("output,o", boost::program_options::value<std::string>(&outputDir)->default_value("calibration_data"), "Directory to write calibration data to.")
-        ("motions,m", boost::program_options::value<int>(&nMotions)->default_value(500), "Number of motions for calibration.")
-        ("begin-stage", boost::program_options::value<int>(&beginStage)->default_value(0), "Stage to begin from.")
-        ("preprocess", boost::program_options::bool_switch(&preprocessImages)->default_value(false), "Preprocess images.")
-        ("optimize-intrinsics", boost::program_options::bool_switch(&optimizeIntrinsics)->default_value(false), "Optimize intrinsics in BA step.")
-        ("data", boost::program_options::value<std::string>(&dataDir)->default_value("data"), "Location of folder which contains working data.")
-        ("input", boost::program_options::value<std::string>(&inputDir)->default_value("input"), "Location of the folder containing all input data. Files must be named camera_%02d_%05d.png. In case if event file is specified, this is the path where to find frame_X/ subfolders")
-        ("event", boost::program_options::value<std::string>(&eventFile)->default_value(std::string("")), "Event log file to be used for frame and pose events.")
-        ("ref-height", boost::program_options::value<float>(&refCameraGroundHeight)->default_value(0), "Height of the reference camera (cam=0) above the ground (cameras extrinsics will be relative to the reference camera)")
-        ("keydist", boost::program_options::value<float>(&keyframeDistance)->default_value(0.4), "Distance of rig to be traveled before taking a keyframe (distance is measured by means of odometry poses)")
-        ("verbose,v", boost::program_options::bool_switch(&verbose)->default_value(false), "Verbose output")
-        ;
+    desc.add_options()("help", "produce help message")("calib,c", boost::program_options::value<std::string>(&calibDir)->default_value("calib"), "Directory containing camera calibration files.")("estimate,e", boost::program_options::value<std::string>(&odoEstimateFile), "File containing estimate for the extrinsic calibration.")("camera-count", boost::program_options::value<int>(&cameraCount)->default_value(1), "Number of cameras in rig.")("f", boost::program_options::value<float>(&focal)->default_value(300.0f), "Nominal focal length.")("output,o", boost::program_options::value<std::string>(&outputDir)->default_value("calibration_data"), "Directory to write calibration data to.")("motions,m", boost::program_options::value<int>(&nMotions)->default_value(500), "Number of motions for calibration.")("begin-stage", boost::program_options::value<int>(&beginStage)->default_value(0), "Stage to begin from.")("preprocess", boost::program_options::bool_switch(&preprocessImages)->default_value(false), "Preprocess images.")("optimize-intrinsics", boost::program_options::bool_switch(&optimizeIntrinsics)->default_value(false), "Optimize intrinsics in BA step.")("data", boost::program_options::value<std::string>(&dataDir)->default_value("data"), "Location of folder which contains working data.")("input", boost::program_options::value<std::string>(&inputDir)->default_value("input"), "Location of the folder containing all input data. Files must be named camera_%02d_%05d.png. In case if event file is specified, this is the path where to find frame_X/ subfolders")("event", boost::program_options::value<std::string>(&eventFile)->default_value(std::string("")), "Event log file to be used for frame and pose events.")("ref-height", boost::program_options::value<float>(&refCameraGroundHeight)->default_value(0), "Height of the reference camera (cam=0) above the ground (cameras extrinsics will be relative to the reference camera)")("keydist", boost::program_options::value<float>(&keyframeDistance)->default_value(0.4), "Distance of rig to be traveled before taking a keyframe (distance is measured by means of odometry poses)")("verbose,v", boost::program_options::bool_switch(&verbose)->default_value(false), "Verbose output");
     boost::program_options::variables_map vm;
     boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
     boost::program_options::notify(vm);
@@ -90,11 +73,12 @@ main(int argc, char** argv)
         return 1;
     }
 
-    std::cout << "# INFO: Initializing... " << std::endl << std::flush;
+    std::cout << "# INFO: Initializing... " << std::endl
+              << std::flush;
 
     if (beginStage > 0)
     {
-#ifdef HAVE_CUDA 
+#ifdef HAVE_CUDA
         // check for CUDA devices
         cv::cuda::DeviceInfo info;
         if (cv::cuda::getCudaEnabledDeviceCount() > 0 && info.isCompatible())
@@ -161,16 +145,15 @@ main(int argc, char** argv)
                 cv::Mat grey;
                 cv::cvtColor(mask, grey, CV_RGB2GRAY, 1);
                 camera->mask() = grey;
-                std::cout << "# INFO: Foudn camera mask for camera " << camera->cameraName() << std::endl;
+                std::cout << "# INFO: Found camera mask for camera " << camera->cameraName() << std::endl;
             }
         }
-
 
         cameras.at(i) = camera;
     }
 
     // read extrinsic estimates
-    std::map<unsigned, Eigen::Matrix4d, std::less<unsigned>, Eigen::aligned_allocator<std::pair<const unsigned, Eigen::Matrix4d> > > estimates;
+    std::map<unsigned, Eigen::Matrix4d, std::less<unsigned>, Eigen::aligned_allocator<std::pair<const unsigned, Eigen::Matrix4d>>> estimates;
     if (odoEstimateFile.length())
     {
         std::cout << "# INFO: parse extrinsic calibration estimates file " << odoEstimateFile << std::endl;
@@ -179,31 +162,30 @@ main(int argc, char** argv)
         if (file.is_open())
         {
             std::string line;
-            while(getline(file, line))
+            while (getline(file, line))
             {
-                auto it = std::find_if(cameras.begin(), cameras.end(), [&line](camodocal::CameraPtr cam)
-                { return cam && boost::iequals(cam->cameraName(), line); });
+                auto it = std::find_if(cameras.begin(), cameras.end(), [&line](camodocal::CameraPtr cam) { return cam && boost::iequals(cam->cameraName(), line); });
 
-                if (it == cameras.end()) continue;
+                if (it == cameras.end())
+                    continue;
 
                 std::cout << "# INFO: found estimate for camera " << line << std::endl;
 
                 Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
-                file >> T(0,0) >> T(0,1) >> T(0,2) >> T(0,3);
-                file >> T(1,0) >> T(1,1) >> T(1,2) >> T(1,3);
-                file >> T(2,0) >> T(2,1) >> T(2,2) >> T(2,3);
+                file >> T(0, 0) >> T(0, 1) >> T(0, 2) >> T(0, 3);
+                file >> T(1, 0) >> T(1, 1) >> T(1, 2) >> T(1, 3);
+                file >> T(2, 0) >> T(2, 1) >> T(2, 2) >> T(2, 3);
 
                 estimates[std::distance(cameras.begin(), it)] = T;
             }
         }
     }
 
-
     //========================= Get all files  =========================
-    typedef std::map<int64_t, std::string>  ImageMap;
-    typedef std::map<int64_t, Eigen::Isometry3f, std::less<int64_t>, Eigen::aligned_allocator<std::pair<const int64_t, Eigen::Isometry3f> > > IsometryMap;
+    typedef std::map<int64_t, std::string> ImageMap;
+    typedef std::map<int64_t, Eigen::Isometry3f, std::less<int64_t>, Eigen::aligned_allocator<std::pair<const int64_t, Eigen::Isometry3f>>> IsometryMap;
 
-    std::vector< ImageMap > inputImages(cameraCount);
+    std::vector<ImageMap> inputImages(cameraCount);
     IsometryMap inputOdometry;
     bool bUseGPS = false;
     if (eventFile.length() == 0)
@@ -251,24 +233,24 @@ main(int argc, char** argv)
                     return 1;
                 }
 
-                file >> R(0,0) >> R(0, 1) >> R(0, 2);
-                file >> R(1,0) >> R(1, 1) >> R(1, 2);
-                file >> R(2,0) >> R(2, 1) >> R(2, 2);
+                file >> R(0, 0) >> R(0, 1) >> R(0, 2);
+                file >> R(1, 0) >> R(1, 1) >> R(1, 2);
+                file >> R(2, 0) >> R(2, 1) >> R(2, 2);
                 file >> t[0] >> t[1] >> t[2];
-                
-                file.close();
 
+                file.close();
 
                 Eigen::Isometry3f T;
 
-                T.matrix().block<3,3>(0,0) = R;
-                T.matrix().block<3,1>(0,3) = t;
+                T.matrix().block<3, 3>(0, 0) = R;
+                T.matrix().block<3, 1>(0, 3) = t;
                 inputOdometry[timestamp] = T;
             }
 
             it++;
         }
-    }else
+    }
+    else
     {
         printf("Read %s file to get all the events\n", eventFile.c_str());
 
@@ -281,8 +263,8 @@ main(int argc, char** argv)
 
         // read line by line and interpret accordin event
         std::string line;
-        Eigen::Quaternionf lastIMU(0,0,0,1);
-        while(std::getline(file, line))
+        Eigen::Quaternionf lastIMU(0, 0, 0, 1);
+        while (std::getline(file, line))
         {
             std::stringstream str(line);
 
@@ -299,18 +281,20 @@ main(int argc, char** argv)
                 str >> camid >> frame;
                 inputImages[camid][timestamp] = inputDir + "/frames_" + boost::lexical_cast<std::string>(camid) + "/" + frame;
                 //printf("image [%d][%llu] = %s\n", camid, timestamp, inputImages[camid][timestamp].c_str());
-            }else if (type.compare("IMU") == 0)
+            }
+            else if (type.compare("IMU") == 0)
             {
                 str >> lastIMU.x() >> lastIMU.y() >> lastIMU.z() >> lastIMU.w();
-            }else if (type.compare("GPS") == 0)
+            }
+            else if (type.compare("GPS") == 0)
             {
-                Eigen::Vector3f gps(0,0,0);
+                Eigen::Vector3f gps(0, 0, 0);
                 str >> gps[0] >> gps[1] >> gps[2];
 
                 // construct the odometry entry
                 Eigen::Isometry3f T;
-                T.matrix().block<3,3>(0,0) = lastIMU.toRotationMatrix();
-                T.matrix().block<3,1>(0,3) = gps;
+                T.matrix().block<3, 3>(0, 0) = lastIMU.toRotationMatrix();
+                T.matrix().block<3, 1>(0, 3) = gps;
                 inputOdometry[timestamp] = T;
 
                 bUseGPS = true;
@@ -320,11 +304,10 @@ main(int argc, char** argv)
 
     //========================= Start Threads =========================
 
-
     // optimize intrinsics only if features are well distributed across
     // the entire image area.
     CamRigOdoCalibration::Options options;
-//    options.mode = CamRigOdoCalibration::ONLINE;
+    //    options.mode = CamRigOdoCalibration::ONLINE;
     options.poseSource = bUseGPS ? PoseSource::GPS_INS : PoseSource::ODOMETRY;
     options.nMotions = nMotions;
     options.minKeyframeDistance = keyframeDistance;
@@ -338,21 +321,20 @@ main(int argc, char** argv)
 
     CamRigOdoCalibration camRigOdoCalib(cameras, options);
 
-    for(auto it : estimates) camRigOdoCalib.setInitialCameraOdoTransformEstimates(it.first, it.second);
+    for (auto it : estimates)
+        camRigOdoCalib.setInitialCameraOdoTransformEstimates(it.first, it.second);
 
     std::cout << "# INFO: Initialization finished!" << std::endl;
 
-    std::thread inputThread([&inputImages, &inputOdometry, &camRigOdoCalib, cameraCount, bUseGPS]()
-    {
+    std::thread inputThread([&inputImages, &inputOdometry, &camRigOdoCalib, cameraCount, bUseGPS]() {
         //uint64_t lastTimestamp = std::numeric_limits<uint64_t>::max();
 
         std::vector<ImageMap::iterator> camIterator(cameraCount);
         IsometryMap::iterator locIterator = inputOdometry.begin();
-        for (int c=0; c < cameraCount; c++)
+        for (int c = 0; c < cameraCount; c++)
             camIterator[c] = inputImages[c].begin();
 
-        auto addLocation = [&camRigOdoCalib, bUseGPS](uint64_t timestamp, const Eigen::Isometry3f& T)
-        {
+        auto addLocation = [&camRigOdoCalib, bUseGPS](uint64_t timestamp, const Eigen::Isometry3f &T) {
             if (bUseGPS)
             {
                 Eigen::Quaternionf q(T.rotation());
@@ -362,9 +344,10 @@ main(int argc, char** argv)
                 std::cout << "GPS: lat=" << gps[0] << ", lon=" << gps[1] << ", alt=" << gps[2]
                           << ", qx=" << q.x() << ", qy=" << q.y() << ", qz=" << q.z() << ", qw=" << q.w()
                           << " [" << timestamp << "]" << std::endl;
-            }else
+            }
+            else
             {
-                float yaw = std::atan2(T.linear()(1,0), T.linear()(0,0));
+                float yaw = std::atan2(T.linear()(1, 0), T.linear()(0, 0));
                 camRigOdoCalib.addOdometry(T.translation()[0], T.translation()[1], T.translation()[2], yaw, timestamp);
 
                 std::cout << "POSE: x=" << T.translation()[0] << ", y=" << T.translation()[1] << ", yaw=" << yaw << " [" << timestamp << "]" << std::endl;
@@ -373,14 +356,15 @@ main(int argc, char** argv)
 
         // ensure that we have
         // location data available, before adding images
-        for (int i=0; i < 3 && locIterator != inputOdometry.end(); i++, locIterator++)
+        for (int i = 0; i < 3 && locIterator != inputOdometry.end(); i++, locIterator++)
         {
             addLocation(locIterator->first, locIterator->second);
         }
 
-        while(locIterator != inputOdometry.end())
+        while (locIterator != inputOdometry.end())
         {
-            if (camRigOdoCalib.isRunning()) break;
+            if (camRigOdoCalib.isRunning())
+                break;
 
             int64_t locTime = locIterator->first;
             addLocation(locTime, locIterator->second);
@@ -388,17 +372,19 @@ main(int argc, char** argv)
             // now add image and location data, but such that
             // location data is always fresher than camera data
             bool hasData = true;
-            while(hasData)
+            while (hasData)
             {
                 hasData = false;
-                for (int c=0; c < cameraCount; c++)
+                for (int c = 0; c < cameraCount; c++)
                 {
-                    if(camIterator[c] == inputImages[c].end()) continue;
-                    if(camIterator[c]->first < locTime)
+                    if (camIterator[c] == inputImages[c].end())
+                        continue;
+                    if (camIterator[c]->first < locTime)
                     {
                         uint64_t camTime = camIterator[c]->first;
                         std::cout << "IMG: " << camTime << " -> " << camIterator[c]->second << std::endl;
-                        std::cout << "Pose : " << locIterator->first << std::endl << locIterator->second.linear() << std::endl;
+                        std::cout << "Pose : " << locIterator->first << std::endl
+                                  << locIterator->second.linear() << std::endl;
                         camRigOdoCalib.addFrame(c, cv::imread(camIterator[c]->second), camTime);
                         camIterator[c]++;
                         hasData = true;
@@ -458,9 +444,9 @@ main(int argc, char** argv)
         }
 #endif
 
-        if (!camRigOdoCalib.isRunning()) camRigOdoCalib.run();
+        if (!camRigOdoCalib.isRunning())
+            camRigOdoCalib.run();
     });
-
 
     //****************
     //
@@ -501,7 +487,7 @@ main(int argc, char** argv)
     // waiting for the minimum motion requirement to be met,
     //camRigOdoCalib.run();
     camRigOdoCalib.start();
-    
+
     CameraSystem cameraSystem = camRigOdoCalib.cameraSystem();
     cameraSystem.setReferenceCamera(0);
     cameraSystem.writeToDirectory(outputDir);
@@ -522,28 +508,28 @@ main(int argc, char** argv)
         std::cout << H.block<3,1>(0,3).transpose() << std::endl;
     }*/
 
-
-    float camHeightDiff = cameraSystem.getGlobalCameraPose(0)(2,3) - refCameraGroundHeight;
+    float camHeightDiff = cameraSystem.getGlobalCameraPose(0)(2, 3) - refCameraGroundHeight;
     std::cout << "# INFO: Current estimate (global):" << std::endl;
     for (int i = 0; i < cameraCount; ++i)
     {
         Eigen::Matrix4d H = cameraSystem.getGlobalCameraPose(i);
         //H.block<3,1>(0,1) *= -1;
         //H.block<3,1>(0,2) *= -1;
-        Eigen::Quaterniond Q(H.block<3,3>(0,0));
-        Eigen::Vector3d T = H.block<3,1>(0,3);
+        Eigen::Quaterniond Q(H.block<3, 3>(0, 0));
+        Eigen::Vector3d T = H.block<3, 1>(0, 3);
 
         T[2] -= camHeightDiff;
 
         std::cout << "========== Camera " << i << " ==========" << std::endl;
         std::cout << "Rotation: " << std::endl;
-        std::cout << H.block<3,3>(0,0) << std::endl;
+        std::cout << H.block<3, 3>(0, 0) << std::endl;
 
         std::cout << "Rotation Q: " << std::endl;
         std::cout << " " << Q.x() << " " << Q.y() << " " << Q.z() << " " << Q.w() << std::endl;
 
         std::cout << "Translation: " << std::endl;
-        std::cout << T.transpose() << std::endl << std::endl;
+        std::cout << T.transpose() << std::endl
+                  << std::endl;
     }
     inputThread.join();
 
