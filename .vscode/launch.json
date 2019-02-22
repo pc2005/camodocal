@@ -23,19 +23,18 @@
             ],
             "cwd": "${workspaceFolder}/build"
         },
-
         {
             "type": "lldb",
             "request": "launch",
             "name": "ExtrinsicCalib Debug",
             "program": "${workspaceFolder}/build/bin/extrinsic_calib",
             "args": [
-                "-i",
-                "../data/images/",
-                "-p",
-                "img",
-                "--camera-model",
-                "mei",
+                "-c",
+                "./",
+                "--camera-count",
+                "4",
+                "-o",
+                "./",
                 "-v",
             ],
             "cwd": "${workspaceFolder}/build"
